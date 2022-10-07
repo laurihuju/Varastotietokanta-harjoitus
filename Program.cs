@@ -169,7 +169,7 @@ namespace Varastotietokanta_harjoitus
                         Console.WriteLine("Tuote poistettu tietokannasta!");
                     } else if (input == "3")
                     {
-
+                        PrintProductAmounts(address, user, password);
                     } else if (input == "4")
                     {
                         Console.WriteLine("Kirjoita tuotteen nykyinen nimi:");
@@ -295,6 +295,30 @@ namespace Varastotietokanta_harjoitus
                 {
                     return false;
                 }
+            }
+        }
+
+        private static void PrintProductAmounts(string address, string user, string password)
+        {
+            using (VarastonhallintaDBContext database = new VarastonhallintaDBContext(address, user, password))
+            {
+                DbSet<Tuote>? products = database.Tuote;
+                if (products == null)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Yhtään tuotetta ei löytynyt!");
+                    return;
+                }
+                if (products.Count() == 0)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Yhtään tuotetta ei löytynyt!");
+                    return;
+                }
+
+                Console.WriteLine();
+                foreach (Tuote product in products)
+                    Console.WriteLine($"Tuote: {product.Tuotenimi ?? "Nimeä ei löytynyt"} - VarastoSaldo: {product.VarastoSaldo} - Hinta: {product.Hinta}");
             }
         }
     }
