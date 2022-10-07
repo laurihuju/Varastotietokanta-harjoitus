@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace Varastotietokanta_harjoitus
 {
@@ -6,6 +7,7 @@ namespace Varastotietokanta_harjoitus
     {
         static void Main(string[] args)
         {
+            //^X&B6xsk35*#4vN^Rx$f
             Console.WriteLine("Tervetuloa varastonhallintaan!");
 
             while (true)
@@ -136,7 +138,7 @@ namespace Varastotietokanta_harjoitus
                             continue;
                         }
 
-                        if (true)
+                        if (!AddProduct(address, user, password, productID, productName, productPrice, productAmount))
                         {
                             Console.WriteLine();
                             Console.WriteLine("Tuotteen lisääminen tietokantaan epäonnistui!");
@@ -213,6 +215,65 @@ namespace Varastotietokanta_harjoitus
                 if (!database.Database.CanConnect())
                     return false;
                 return true;
+            }
+        }
+
+        private static bool AddProduct(string address, string user, string password, string productID, string productName, string productPrice, string productAmount)
+        {
+            int idInt;
+            try
+            {
+                idInt = Int32.Parse(productID);
+                if (idInt < 0)
+                    return false;
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
+
+            int priceInt;
+            try
+            {
+                priceInt = Int32.Parse(productPrice);
+                if (priceInt < 0)
+                    return false;
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
+
+            int amountInt;
+            try
+            {
+                amountInt = Int32.Parse(productAmount);
+                if (amountInt < 0)
+                    return false;
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
+
+            using(VarastonhallintaDBContext database = new VarastonhallintaDBContext(address, user, password))
+            {
+                Tuote product = new Tuote();
+                product.ID = idInt;
+                product.Tuotenimi = productName;
+                product.Hinta = priceInt;
+                product.VarastoSaldo = amountInt;
+
+                database.Tuote?.Add(product);
+
+                try
+                {
+                    return database.SaveChanges() == 1;
+                }
+                catch (DbUpdateException)
+                {
+                    return false;
+                }
             }
         }
     }
