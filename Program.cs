@@ -190,7 +190,7 @@ namespace Varastotietokanta_harjoitus
                             continue;
                         }
 
-                        if (true)
+                        if (!ChangeProductName(address, user, password, productName, newName))
                         {
                             Console.WriteLine();
                             Console.WriteLine("Tuotteen uudelleennimeäminen epäonnistui!");
@@ -319,6 +319,27 @@ namespace Varastotietokanta_harjoitus
                 Console.WriteLine();
                 foreach (Tuote product in products)
                     Console.WriteLine($"Tuote: {product.Tuotenimi ?? "Nimeä ei löytynyt"} - VarastoSaldo: {product.VarastoSaldo} - Hinta: {product.Hinta}");
+            }
+        }
+
+        private static bool ChangeProductName(string address, string user, string password, string oldName, string newName)
+        {
+            using (VarastonhallintaDBContext database = new VarastonhallintaDBContext(address, user, password))
+            {
+                Tuote? product = database.Tuote?.Where(product => product.Tuotenimi == oldName).FirstOrDefault();
+                if (product == null)
+                    return false;
+
+                product.Tuotenimi = newName;
+
+                try
+                {
+                    return database.SaveChanges() == 1;
+                }
+                catch (DbUpdateException)
+                {
+                    return false;
+                }
             }
         }
     }
