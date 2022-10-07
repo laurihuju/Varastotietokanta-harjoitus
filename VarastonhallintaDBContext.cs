@@ -8,6 +8,8 @@ namespace Varastotietokanta_harjoitus
         private string user;
         private string password;
 
+        public DbSet<Tuote>? Tuote { get; set; }
+
         public VarastonhallintaDBContext(string address, string user, string password)
         {
             this.address = address;
