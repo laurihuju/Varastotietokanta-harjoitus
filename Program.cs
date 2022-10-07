@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
+using System.Linq;
 
 namespace Varastotietokanta_harjoitus
 {
@@ -7,7 +8,6 @@ namespace Varastotietokanta_harjoitus
     {
         static void Main(string[] args)
         {
-            //^X&B6xsk35*#4vN^Rx$f
             Console.WriteLine("Tervetuloa varastonhallintaan!");
 
             while (true)
@@ -158,7 +158,7 @@ namespace Varastotietokanta_harjoitus
                             continue;
                         }
 
-                        if (true)
+                        if (!RemoveProduct(address, user, password, productName))
                         {
                             Console.WriteLine();
                             Console.WriteLine("Tuotteen poistaminen tietokannasta epäonnistui!");
@@ -265,6 +265,27 @@ namespace Varastotietokanta_harjoitus
                 product.VarastoSaldo = amountInt;
 
                 database.Tuote?.Add(product);
+
+                try
+                {
+                    return database.SaveChanges() == 1;
+                }
+                catch (DbUpdateException)
+                {
+                    return false;
+                }
+            }
+        }
+
+        private static bool RemoveProduct(string address, string user, string password, string productName)
+        {
+            using (VarastonhallintaDBContext database = new VarastonhallintaDBContext(address, user, password))
+            {
+                Tuote? product = database.Tuote?.Where(product => product.Tuotenimi == productName).FirstOrDefault();
+                if (product == null)
+                    return false;
+
+                database.Tuote?.Remove(product);
 
                 try
                 {
